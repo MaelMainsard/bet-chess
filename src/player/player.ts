@@ -12,4 +12,11 @@ export class Player {
       rating: this.rating,
     };
   }
+
+  static fromJSON(data: any): Player {
+    return new Player({
+      id: data.id,
+      rating: data.rating,
+    });
+  }
 }

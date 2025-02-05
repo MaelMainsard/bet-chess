@@ -34,14 +34,30 @@ export class Match {
   }
 
   toJSON() {
-    return {
-      id: this.id,
-      whitePlayer: this.whitePlayer.toJSON(),
-      blackPlayer: this.blackPlayer.toJSON(),
-      status: this.status,
-      cote: this.cote,
-      result: this.result,
-    };
+    try {
+      return {
+        id: this.id,
+        whitePlayer: this.whitePlayer.toJSON(),
+        blackPlayer: this.blackPlayer.toJSON(),
+        status: this.status,
+        cote: this.cote,
+        result: this.result,
+      };
+    } catch (e) {
+      console.log(this);
+      throw e;
+    }
+  }
+
+  static fromJSON(data: any): Match {
+    return new Match({
+      id: data.id,
+      whitePlayer: Player.fromJSON(data.whitePlayer),
+      blackPlayer: Player.fromJSON(data.blackPlayer),
+      status: data.status,
+      cote: data.cote,
+      result: data.result || null,
+    });
   }
 
   private computeCote(): void {
