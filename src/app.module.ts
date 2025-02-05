@@ -3,9 +3,8 @@ import { ConfigModule } from '@nestjs/config';
 import { FirebaseModule } from './firebase/firebase.module';
 import { AuthModule } from './auth/auth.module';
 import { NotificationsModule } from './notifications/notifications.module';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { MatchModule } from './match/match.module';
+import { LichessModule } from './lichess/lichess.module';
 
 @Module({
   imports: [
@@ -13,6 +12,7 @@ import { MatchModule } from './match/match.module';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    LichessModule,
     FirebaseModule,
     AuthModule,
     NotificationsModule,

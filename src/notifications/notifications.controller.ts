@@ -1,5 +1,5 @@
 import { Body, Controller, Post } from '@nestjs/common';
-import { FirebaseService } from '../config/firebase.config';
+import { FirebaseService } from '../firebase/firebase.config';
 import * as nodemailer from 'nodemailer';
 import * as dotenv from 'dotenv';
 dotenv.config();
