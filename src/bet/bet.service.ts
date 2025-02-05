@@ -73,7 +73,25 @@ export class BetService {
 
       return newBet;
     } catch (error) {
-      throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
+      switch (error) {
+        case ErrorCode.MATCH_NOT_FOUND:
+          throw new HttpException(
+            ErrorCode.MATCH_NOT_FOUND,
+            HttpStatus.NO_CONTENT,
+          );
+        case ErrorCode.MULTIPLE_BET_FORBIDDEN:
+          throw new HttpException(
+            ErrorCode.MULTIPLE_BET_FORBIDDEN,
+            HttpStatus.NOT_ACCEPTABLE,
+          );
+        case ErrorCode.BET_AMOUNT_NOT_VALID:
+          throw new HttpException(
+            ErrorCode.BET_AMOUNT_NOT_VALID,
+            HttpStatus.NOT_ACCEPTABLE,
+          );
+        default:
+          throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
+      }
     }
   }
 
