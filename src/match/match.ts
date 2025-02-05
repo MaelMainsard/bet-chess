@@ -60,7 +60,7 @@ export class Match {
   }
 
   private computeCote(): void {
-    console.log("coucouc");
+    console.log('coucouc');
     const whiteWinProb = Match.getWinProbability(
       this.whitePlayer.rating,
       this.blackPlayer.rating,
