@@ -5,6 +5,7 @@ import { AuthModule } from './auth/auth.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { MatchModule } from './match/match.module';
 import { LichessModule } from './lichess/lichess.module';
+import { BetModule } from './bet/bet.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { LichessModule } from './lichess/lichess.module';
     FirebaseModule,
     AuthModule,
     NotificationsModule,
+    BetModule,
   ],
 })
 export class AppModule {}
