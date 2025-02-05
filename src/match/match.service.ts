@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { FirebaseService } from 'src/config/firebase.config';
+import { FirebaseService } from 'src/firebase/firebase.config';
 import { Match, MatchStatus } from './match';
 
 @Injectable()
