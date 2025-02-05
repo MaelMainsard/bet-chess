@@ -5,8 +5,7 @@ import { AuthResponse } from './interfaces/auth-response.interface';
 import { LoginDto } from './dto/login.dto';
 import { AuthGuard } from './guards/auth.guard';
 import { CurrentUser } from './decorators/current-user.decorator';
-import firebase from 'firebase/compat';
-import User = firebase.User;
+import { User } from './interfaces/user.interface';
 
 
 @Controller('auth')

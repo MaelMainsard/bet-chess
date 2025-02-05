@@ -6,7 +6,7 @@ export class Match {
   blackPlayer: Player;
   status: MatchStatus;
   cote: Cote;
-  result?: MatchResult;
+  result: MatchResult | null;
 
   private static readonly RATING_STEP = 20;
   private static readonly MAX_RATING_DIFF = 260;
@@ -30,6 +30,18 @@ export class Match {
   constructor(data: Partial<Match>) {
     Object.assign(this, data);
     this.computeCote();
+    console.log('this.cote', this.cote);
+  }
+
+  toJSON() {
+    return {
+      id: this.id,
+      whitePlayer: this.whitePlayer.toJSON(),
+      blackPlayer: this.blackPlayer.toJSON(),
+      status: this.status,
+      cote: this.cote,
+      result: this.result,
+    };
   }
 
   private computeCote(): void {
@@ -86,4 +98,17 @@ export enum MatchResult {
   WHITE = 'WHITE',
   BLACK = 'BLACK',
   DRAW = 'DRAW',
+}
+
+export function matchResultFromString(result: string): MatchResult | null {
+  switch (result) {
+    case 'white':
+      return MatchResult.WHITE;
+    case 'black':
+      return MatchResult.BLACK;
+    case 'draw':
+      return MatchResult.DRAW;
+    default:
+      return null;
+  }
 }
