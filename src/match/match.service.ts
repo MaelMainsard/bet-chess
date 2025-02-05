@@ -1,5 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { FirebaseService } from 'src/config/firebase.config';
+import { FirebaseService } from 'src/firebase/firebase.config';
+import { Match, MatchStatus } from './match';
+
 @Injectable()
 export class MatchService {
   private db: FirebaseFirestore.Firestore;
@@ -8,19 +10,28 @@ export class MatchService {
     this.db = firebaseService.getFirestore();
   }
 
-  async findAll() {
+  async findAll(): Promise<Match[]> {
     const snapshot = await this.db.collection('match').get();
-    return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+    return snapshot.docs.map((doc) => new Match({ id: doc.id, ...doc.data() }));
   }
 
-  async findById(id: string) {
-    const doc = await this.db.collection('matches').doc(id).get();
-    return doc.exists ? { id: doc.id, ...doc.data() } : null;
+  async findById(id: string): Promise<Match | null> {
+    const doc = await this.db.collection('match').doc(id).get();
+    return doc.exists ? new Match({ id: doc.id, ...doc.data() }) : null;
   }
 
-  async createMatch(data: any): Promise<any> {
-    const docRef = await this.db.collection('match').add(data);
+  async findAllOngoing(): Promise<Match[]> {
+    const snapshot = await this.db
+      .collection('match')
+      .where('status', '==', MatchStatus.ONGOING) // Filtre les matchs en cours
+      .get();
 
-    return { id: docRef.id, ...data };
+    return snapshot.docs.map((doc) => new Match({ id: doc.id, ...doc.data() }));
+  }
+
+  async createMatch(match: Match) {
+    await this.db.collection('match').add(match);
+
+    return { ...match };
   }
 }
