@@ -10,6 +10,7 @@ import {
 } from 'src/match/match';
 import { Player } from 'src/player/player';
 import { MatchService } from 'src/match/match.service';
+import { BetService } from 'src/bet/bet.service';
 
 @Injectable()
 export class LichessService implements OnModuleInit {
@@ -18,7 +19,10 @@ export class LichessService implements OnModuleInit {
     'https://lichess.org/api/stream/games/bet-chess-stream';
   private currentStream: any = null;
 
-  constructor(private readonly matchService: MatchService) {}
+  constructor(
+    private readonly matchService: MatchService,
+    private readonly betService: BetService,
+  ) {}
 
   onModuleInit() {
     setTimeout(() => this.checkOngoingGames(), 100);
@@ -131,6 +135,10 @@ export class LichessService implements OnModuleInit {
     });
 
     await this.matchService.setMatch(match);
+
+    if (match.result) {
+      await this.betService.onMatchEnded(match);
+    }
 
     return match;
   }
