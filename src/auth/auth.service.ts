@@ -48,6 +48,7 @@ export class AuthService {
       const userData: User = {
         email: credentials.email,
         username: credentials.username,
+        point: 100,
         lastLogin: new Date(),
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -81,6 +82,7 @@ export class AuthService {
           uid: userRecord.uid,
           email: userData.email,
           username: userData.username,
+          point: userData.point,
           lastLogin: userData.lastLogin,
           updatedAt: userData.updatedAt,
           createdAt: userData.createdAt,
