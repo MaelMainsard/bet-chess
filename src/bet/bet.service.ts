@@ -111,8 +111,6 @@ export class BetService {
           .doc(uid!)
           .set(betWithoutUid);
 
-        await this.notificationService.sendBetNotification(match, bet);
-
         if (bet.result) {
           await this.firebaseService
             .getFirestore()

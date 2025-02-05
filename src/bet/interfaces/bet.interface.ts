@@ -5,7 +5,7 @@ export interface Bet {
   matchId: string;
   userId: string;
   bet: MatchResult;
-  result?: boolean; // WIN / LOSE boolean
+  isResultWin?: boolean; // WIN / LOSE boolean
   bet_amount: number; //Le montant parié,
   result_amount?: number; // Le montant reçu ou perdu
 }
