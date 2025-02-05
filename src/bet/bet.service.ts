@@ -5,6 +5,9 @@ import { AddBetDto } from './dto/add-bet.dto';
 import { User } from '../auth/interfaces/user.interface';
 import { Bet } from './interfaces/bet.interface';
 import { Match } from '../match/match';
+import { firestore } from 'firebase-admin';
+import QuerySnapshot = firestore.QuerySnapshot;
+import { ErrorCode } from '../auth/constant/errors.code';
 dotenv.config();
 
 @Injectable()
@@ -29,6 +32,16 @@ export class BetService {
         throw new HttpException("Match not found", HttpStatus.NOT_FOUND);
       }
 
+      const query: QuerySnapshot = await this.firebaseService
+        .getFirestore()
+        .collection(this.BET_COLLECTION)
+        .where('matchId', '==', credentials.matchId)
+        .get();
+
+      if (!query.empty) {
+        throw new HttpException("You can't bet in the same match multiple time !", HttpStatus.FORBIDDEN);
+      }
+
       const newBet :Bet = {
         matchId: credentials.matchId,
         userId: user.uid!,
@@ -49,4 +62,18 @@ export class BetService {
     }
   }
 
+  async onMatchEnded(match: Match) {
+    try {
+      const query: QuerySnapshot = await this.firebaseService
+        .getFirestore()
+        .collection(this.BET_COLLECTION)
+        .where('matchId', '==', match.id)
+        .get();
+
+
+
+    } catch (error){
+      throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
 }
