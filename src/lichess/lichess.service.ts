@@ -28,7 +28,7 @@ export class LichessService implements OnModuleInit {
 
   onModuleInit() {
     setTimeout(() => this.checkOngoingGames(), 100);
-    setTimeout(() => this.startWatchingBulletGames(), 4000);
+    setTimeout(() => this.startWatchingBulletGames(), 1000);
   }
 
   private async checkOngoingGames() {
