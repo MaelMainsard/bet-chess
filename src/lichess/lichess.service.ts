@@ -10,8 +10,6 @@ import {
 } from 'src/match/match';
 import { Player } from 'src/player/player';
 import { MatchService } from 'src/match/match.service';
-import { isNullOrUndefined } from 'util';
-import { MatchModule } from 'src/match/match.module';
 
 @Injectable()
 export class LichessService implements OnModuleInit {
