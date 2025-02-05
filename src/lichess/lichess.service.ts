@@ -1,6 +1,15 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { FirebaseService } from '../firebase/firebase.config';
 import axios from 'axios';
+import {
+  Match,
+  Cote,
+  matchResultFromString,
+  MatchStatus,
+  MatchResult,
+} from 'src/match/match';
+import { Player } from 'src/player/player';
+import { MatchService } from 'src/match/match.service';
 
 @Injectable()
 export class LichessService implements OnModuleInit {
@@ -9,15 +18,32 @@ export class LichessService implements OnModuleInit {
     'https://lichess.org/api/stream/games/bet-chess-stream';
   private currentStream: any = null;
 
-  constructor(private readonly firebaseService: FirebaseService) {}
+  constructor(private readonly matchService: MatchService) {}
 
   onModuleInit() {
-    setTimeout(() => this.startWatchingBulletGames(), 2000);
+    setTimeout(() => this.checkOngoingGames(), 100);
+    setTimeout(() => this.startWatchingBulletGames(), 4000);
+  }
+
+  private async checkOngoingGames() {
+    console.log('Fetching ongoing matches...');
+    const matches = await this.matchService.findAllOngoing();
+
+    for (const match of matches) {
+      const response = await axios.get(
+        'https://lichess.org/game/export/' + match.id,
+      );
+      const game = response.data;
+      if (!game) continue;
+      if (game.status <= 20) continue;
+
+      console.log('Match ended : ' + match.id);
+
+      this.updateMatch(match.id, game);
+    }
   }
 
   private async startWatchingBulletGames() {
-    console.log('Fetching Bullet game ID...');
-
     try {
       // Step 1: Fetch Lichess TV Channels to get the Bullet game ID
       const response = await axios.get(this.channelsUrl);
@@ -25,17 +51,15 @@ export class LichessService implements OnModuleInit {
 
       if (!gameId) {
         console.error('Bullet game ID not found!');
-        setTimeout(() => this.startWatchingBulletGames(), 5000); // Retry after 5 sec
+        setTimeout(() => this.startWatchingBulletGames(), 10000); // Retry after 5 sec
         return;
       }
-
-      console.log(`Watching game: ${gameId}`);
 
       // Step 2: Stream the game using the gameId
       this.streamGame(gameId);
     } catch (error) {
       console.error('Error fetching Bullet game ID:', error);
-      setTimeout(() => this.startWatchingBulletGames(), 5000); // Retry after 5 sec
+      setTimeout(() => this.startWatchingBulletGames(), 10000); // Retry after 5 sec
     }
   }
 
@@ -65,20 +89,13 @@ export class LichessService implements OnModuleInit {
         if (!jsonString) return;
 
         try {
-          const data = JSON.parse(jsonString);
-          console.log('New game event:', data);
-
-          const firestore = this.firebaseService.getFirestore();
-          await firestore
-            .collection('lichessLiveGames')
-            .doc(gameId)
-            .set(data, { merge: true });
+          const match = await this.updateMatch(gameId, JSON.parse(jsonString));
 
           // Check if the game is finished
-          if (data.status > 20) {
+          if (match.status == MatchStatus.ENDED) {
             console.log(`Game ${gameId} finished, starting a new game...`);
             this.currentStream.destroy(); // Close current stream before restarting
-            setTimeout(() => this.startWatchingBulletGames(), 5000); // Start watching a new game in 5 sec
+            setTimeout(() => this.startWatchingBulletGames(), 10000); // Start watching a new game in 5 sec
           }
         } catch (error) {
           console.error('Error parsing game stream data:', error);
@@ -87,11 +104,34 @@ export class LichessService implements OnModuleInit {
 
       response.data.on('error', (error) => {
         console.error('Stream error:', error);
-        setTimeout(() => this.startWatchingBulletGames(), 5000); // Restart
+        setTimeout(() => this.startWatchingBulletGames(), 10000); // Restart
       });
     } catch (error) {
       console.error('Error connecting to game stream:', error);
-      setTimeout(() => this.startWatchingBulletGames(), 5000); // Retry
+      setTimeout(() => this.startWatchingBulletGames(), 10000); // Retry
     }
+  }
+
+  private async updateMatch(gameId: string, game): Promise<Match> {
+    const match = new Match({
+      id: gameId,
+      whitePlayer: new Player({
+        id: game.players.white.userId ?? game.players.white.user.id,
+        rating: game.players.white.rating,
+      }),
+      blackPlayer: new Player({
+        id: game.players.black.userId ?? game.players.black.user.id,
+        rating: game.players.black.rating,
+      }),
+      status: game.status <= 20 ? MatchStatus.ONGOING : MatchStatus.ENDED,
+      result:
+        game.status == 34
+          ? MatchResult.DRAW
+          : matchResultFromString(game.winner),
+    });
+
+    await this.matchService.setMatch(match);
+
+    return match;
   }
 }
