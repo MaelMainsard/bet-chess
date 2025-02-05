@@ -72,7 +72,7 @@ export class BetService {
       return newBet;
 
     } catch (error){
-      switch (error) {
+      switch (error.message) {
           case ErrorCode.MATCH_NOT_FOUND:
             throw new HttpException(ErrorCode.MATCH_NOT_FOUND, HttpStatus.NO_CONTENT);
           case ErrorCode.MULTIPLE_BET_FORBIDDEN:
