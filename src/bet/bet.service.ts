@@ -8,6 +8,7 @@ import { Match, MatchResult } from '../match/match';
 import { firestore } from 'firebase-admin';
 import QuerySnapshot = firestore.QuerySnapshot;
 import FieldValue = firestore.FieldValue;
+import { NotificationService } from 'src/notifications/notification.service';
 
 dotenv.config();
 
@@ -19,11 +20,11 @@ export class BetService {
 
   constructor(
     private readonly firebaseService: FirebaseService,
+    private readonly notificationService: NotificationService,
   ) {}
 
   async newBet(credentials: AddBetDto, user: User): Promise<Bet> {
     try {
-
       const matchDoc = await this.firebaseService
         .getFirestore()
         .collection(this.MATCH_COLLECTION)
@@ -31,7 +32,7 @@ export class BetService {
         .get();
 
       if (!matchDoc.exists) {
-        throw new HttpException("Match not found", HttpStatus.NOT_FOUND);
+        throw new HttpException('Match not found', HttpStatus.NOT_FOUND);
       }
 
       const query: QuerySnapshot = await this.firebaseService
@@ -41,7 +42,10 @@ export class BetService {
         .get();
 
       if (!query.empty) {
-        throw new HttpException("You can't bet in the same match multiple time !", HttpStatus.FORBIDDEN);
+        throw new HttpException(
+          "You can't bet in the same match multiple time !",
+          HttpStatus.FORBIDDEN,
+        );
       }
 
       await this.firebaseService
@@ -49,25 +53,24 @@ export class BetService {
         .collection(this.USER_COLLECTION)
         .doc(user.uid!)
         .update({
-          point: FieldValue.increment(-credentials.betAmount)
-        })
+          point: FieldValue.increment(-credentials.betAmount),
+        });
 
-      const newBet :Bet = {
+      const newBet: Bet = {
         matchId: credentials.matchId,
         userId: user.uid!,
         bet: credentials.result,
         bet_amount: credentials.betAmount,
-      }
+      };
 
       await this.firebaseService
         .getFirestore()
         .collection(this.BET_COLLECTION)
         .doc(credentials.matchId)
-        .set(newBet)
+        .set(newBet);
 
       return newBet;
-
-    } catch (error){
+    } catch (error) {
       throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
@@ -80,13 +83,15 @@ export class BetService {
         .where('matchId', '==', match.id)
         .get();
 
-      const bets: Bet[] = query.docs.map((doc) => ({
-        ...doc.data(),
-        uid: doc.id,
-      }) as Bet);
+      const bets: Bet[] = query.docs.map(
+        (doc) =>
+          ({
+            ...doc.data(),
+            uid: doc.id,
+          }) as Bet,
+      );
 
       for (const bet of bets) {
-
         const coteMap = {
           [MatchResult.WHITE]: match.cote.whiteWin,
           [MatchResult.BLACK]: match.cote.blackWin,
@@ -94,7 +99,9 @@ export class BetService {
         };
 
         bet.result = bet.bet === match.result;
-        bet.result_amount = bet.result ? bet.bet_amount * coteMap[match.result!] : 0;
+        bet.result_amount = bet.result
+          ? bet.bet_amount * coteMap[match.result!]
+          : 0;
 
         const { uid, ...betWithoutUid } = bet;
 
@@ -104,18 +111,19 @@ export class BetService {
           .doc(uid!)
           .set(betWithoutUid);
 
-        if(bet.result) {
+        await this.notificationService.sendBetNotification(match, bet);
+
+        if (bet.result) {
           await this.firebaseService
             .getFirestore()
             .collection(this.USER_COLLECTION)
             .doc(bet.userId)
             .update({
-              point: FieldValue.increment(bet.result_amount)
-            })
+              point: FieldValue.increment(bet.result_amount),
+            });
         }
       }
-
-    } catch (error){
+    } catch (error) {
       throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
