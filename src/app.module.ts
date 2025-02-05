@@ -4,12 +4,14 @@ import { FirebaseModule } from './firebase/firebase.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { LichessModule } from './lichess/lichess.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    LichessModule,
     FirebaseModule,
     NotificationsModule,
   ],
