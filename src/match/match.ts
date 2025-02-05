@@ -29,8 +29,7 @@ export class Match {
 
   constructor(data: Partial<Match>) {
     Object.assign(this, data);
-    this.computeCote();
-    console.log('this.cote', this.cote);
+    if (!this.cote) this.computeCote();
   }
 
   toJSON() {
@@ -61,6 +60,7 @@ export class Match {
   }
 
   private computeCote(): void {
+    console.log("coucouc");
     const whiteWinProb = Match.getWinProbability(
       this.whitePlayer.rating,
       this.blackPlayer.rating,
