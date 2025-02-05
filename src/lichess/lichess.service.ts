@@ -25,7 +25,7 @@ export class LichessService implements OnModuleInit {
 
       if (!gameId) {
         console.error('Bullet game ID not found!');
-        setTimeout(() => this.startWatchingBulletGames(), 5000); // Retry after 5 sec
+        setTimeout(() => this.startWatchingBulletGames(), 10000); // Retry after 5 sec
         return;
       }
 
@@ -35,7 +35,7 @@ export class LichessService implements OnModuleInit {
       this.streamGame(gameId);
     } catch (error) {
       console.error('Error fetching Bullet game ID:', error);
-      setTimeout(() => this.startWatchingBulletGames(), 5000); // Retry after 5 sec
+      setTimeout(() => this.startWatchingBulletGames(), 10000); // Retry after 5 sec
     }
   }
 
@@ -78,7 +78,7 @@ export class LichessService implements OnModuleInit {
           if (data.status > 20) {
             console.log(`Game ${gameId} finished, starting a new game...`);
             this.currentStream.destroy(); // Close current stream before restarting
-            setTimeout(() => this.startWatchingBulletGames(), 5000); // Start watching a new game in 5 sec
+            setTimeout(() => this.startWatchingBulletGames(), 10000); // Start watching a new game in 5 sec
           }
         } catch (error) {
           console.error('Error parsing game stream data:', error);
@@ -87,11 +87,11 @@ export class LichessService implements OnModuleInit {
 
       response.data.on('error', (error) => {
         console.error('Stream error:', error);
-        setTimeout(() => this.startWatchingBulletGames(), 5000); // Restart
+        setTimeout(() => this.startWatchingBulletGames(), 10000); // Restart
       });
     } catch (error) {
       console.error('Error connecting to game stream:', error);
-      setTimeout(() => this.startWatchingBulletGames(), 5000); // Retry
+      setTimeout(() => this.startWatchingBulletGames(), 10000); // Retry
     }
   }
 }
