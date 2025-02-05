@@ -43,6 +43,7 @@ export class AuthGuard implements CanActivate {
         uid: decodedToken.uid,
         email: userDoc.data()!.email,
         username: userDoc.data()!.username,
+        point: userDoc.data()!.point,
         lastLogin: userDoc.data()!.lastLogin.toDate(),
         createdAt: userDoc.data()!.createdAt.toDate(),
         updatedAt: userDoc.data()!.updatedAt.toDate(),
