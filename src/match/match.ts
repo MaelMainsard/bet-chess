@@ -8,8 +8,29 @@ export class Match {
   cote: Cote;
   result: MatchResult | null;
 
+  private static readonly RATING_STEP = 20;
+  private static readonly MAX_RATING_DIFF = 260;
+  private static readonly DrawProbability: Record<number, number> = {
+    0: 0.57,
+    20: 0.54,
+    40: 0.54,
+    60: 0.52,
+    80: 0.51,
+    100: 0.5,
+    120: 0.45,
+    140: 0.42,
+    160: 0.4,
+    180: 0.37,
+    200: 0.34,
+    220: 0.31,
+    240: 0.3,
+    260: 0.28,
+  };
+
   constructor(data: Partial<Match>) {
     Object.assign(this, data);
+    this.computeCote();
+    console.log('this.cote', this.cote);
   }
 
   toJSON() {
@@ -21,6 +42,44 @@ export class Match {
       cote: this.cote,
       result: this.result,
     };
+  }
+
+  private computeCote(): void {
+    const whiteWinProb = Match.getWinProbability(
+      this.whitePlayer.rating,
+      this.blackPlayer.rating,
+    );
+    const blackWinProb = Match.getWinProbability(
+      this.blackPlayer.rating,
+      this.whitePlayer.rating,
+    );
+    const drawProb = Match.getDrawProbability(
+      this.whitePlayer.rating,
+      this.blackPlayer.rating,
+    );
+
+    this.cote = {
+      whiteWin: Match.toOdds(whiteWinProb),
+      blackWin: Match.toOdds(blackWinProb),
+      draw: Match.toOdds(drawProb),
+    };
+  }
+
+  private static getDrawProbability(ratingA: number, ratingB: number): number {
+    const ratingDiff = Math.abs(ratingA - ratingB);
+    const adjustedDiff = Math.min(
+      Math.floor(ratingDiff / this.RATING_STEP) * this.RATING_STEP,
+      this.MAX_RATING_DIFF,
+    );
+    return this.DrawProbability[adjustedDiff];
+  }
+
+  private static getWinProbability(ratingA: number, ratingB: number): number {
+    return 1 / (1 + Math.pow(10, (ratingB - ratingA) / 400));
+  }
+
+  private static toOdds(probability: number): number {
+    return probability > 0 ? 1 / probability : Infinity;
   }
 }
 
