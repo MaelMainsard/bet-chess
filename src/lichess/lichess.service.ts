@@ -1,6 +1,15 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { FirebaseService } from '../firebase/firebase.config';
 import axios from 'axios';
+import {
+  Match,
+  Cote,
+  matchResultFromString,
+  MatchStatus,
+  MatchResult,
+} from 'src/match/match';
+import { Player } from 'src/player/player';
+import { MatchService } from 'src/match/match.service';
 
 @Injectable()
 export class LichessService implements OnModuleInit {
@@ -9,7 +18,7 @@ export class LichessService implements OnModuleInit {
     'https://lichess.org/api/stream/games/bet-chess-stream';
   private currentStream: any = null;
 
-  constructor(private readonly firebaseService: FirebaseService) {}
+  constructor(private readonly matchService: MatchService) {}
 
   onModuleInit() {
     setTimeout(() => this.startWatchingBulletGames(), 2000);
@@ -67,15 +76,34 @@ export class LichessService implements OnModuleInit {
         try {
           const data = JSON.parse(jsonString);
           console.log('New game event:', data);
+          let cote: Cote = {
+            blackWin: 1,
+            whiteWin: 1,
+            draw: 1,
+          };
 
-          const firestore = this.firebaseService.getFirestore();
-          await firestore
-            .collection('lichessLiveGames')
-            .doc(gameId)
-            .set(data, { merge: true });
+          const match = new Match({
+            id: gameId,
+            whitePlayer: new Player({
+              id: data.players.white.userId,
+              rating: data.players.white.rating,
+            }),
+            blackPlayer: new Player({
+              id: data.players.black.userId,
+              rating: data.players.black.rating,
+            }),
+            status: data.status <= 20 ? MatchStatus.ONGOING : MatchStatus.ENDED,
+            result:
+              data.status == 34
+                ? MatchResult.DRAW
+                : matchResultFromString(data.winner),
+            cote: cote,
+          });
+
+          await this.matchService.setMatch(match);
 
           // Check if the game is finished
-          if (data.status > 20) {
+          if (match.status == MatchStatus.ENDED) {
             console.log(`Game ${gameId} finished, starting a new game...`);
             this.currentStream.destroy(); // Close current stream before restarting
             setTimeout(() => this.startWatchingBulletGames(), 10000); // Start watching a new game in 5 sec

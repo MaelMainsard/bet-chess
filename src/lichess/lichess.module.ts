@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { LichessService } from './lichess.service';
-import { FirebaseModule } from '../firebase/firebase.module';
+import { MatchModule } from 'src/match/match.module';
 
 @Module({
-  imports: [FirebaseModule],
+  imports: [MatchModule],
   providers: [LichessService],
   exports: [LichessService],
 })

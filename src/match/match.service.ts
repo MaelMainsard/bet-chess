@@ -29,9 +29,7 @@ export class MatchService {
     return snapshot.docs.map((doc) => new Match({ id: doc.id, ...doc.data() }));
   }
 
-  async createMatch(match: Match) {
-    await this.db.collection('match').add(match);
-
-    return { ...match };
+  async setMatch(match: Match) {
+    await this.db.collection('match').doc(match.id).set(match.toJSON());
   }
 }
