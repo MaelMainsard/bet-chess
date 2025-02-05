@@ -23,6 +23,8 @@ export class NotificationService {
   });
 
   async sendBetNotification(match: Match, bet: Bet) {
+    console.log('Sending email to ', bet.userId);
+
     const userDoc = await this.firebaseService
       .getFirestore()
       .collection(this.USERS_COLLECTION)

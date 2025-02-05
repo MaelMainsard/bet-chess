@@ -4,37 +4,33 @@ import * as dotenv from 'dotenv';
 import { AddBetDto } from './dto/add-bet.dto';
 import { User } from '../auth/interfaces/user.interface';
 import { Bet } from './interfaces/bet.interface';
-import { Match, MatchResult } from '../match/match';
+import { Match, MatchResult, MatchStatus } from '../match/match';
 import { firestore } from 'firebase-admin';
 import QuerySnapshot = firestore.QuerySnapshot;
 import FieldValue = firestore.FieldValue;
 import { NotificationService } from 'src/notifications/notification.service';
 import { ErrorCode } from './constant/errors.code';
+import { MatchService } from 'src/match/match.service';
 
 dotenv.config();
 
 @Injectable()
 export class BetService {
   private readonly BET_COLLECTION = 'bet';
-  private readonly MATCH_COLLECTION = 'match';
   private readonly USER_COLLECTION = 'users';
 
   constructor(
     private readonly firebaseService: FirebaseService,
+    private readonly matchService: MatchService,
     private readonly notificationService: NotificationService,
   ) {}
 
   async newBet(credentials: AddBetDto, user: User): Promise<Bet> {
     try {
-      const matchDoc = await this.firebaseService
-        .getFirestore()
-        .collection(this.MATCH_COLLECTION)
-        .doc(credentials.matchId)
-        .get();
-
-      if (!matchDoc.exists) {
-        throw new Error(ErrorCode.MATCH_NOT_FOUND);
-      }
+      const match = await this.matchService.findById(credentials.matchId);
+      if (!match) throw new Error(ErrorCode.MATCH_NOT_FOUND);
+      if (match.status == MatchStatus.ENDED)
+        throw new Error(ErrorCode.MATCH_ENDED);
 
       const query: QuerySnapshot = await this.firebaseService
         .getFirestore()
@@ -73,22 +69,15 @@ export class BetService {
 
       return newBet;
     } catch (error) {
-      switch (error) {
+      switch (error.message) {
         case ErrorCode.MATCH_NOT_FOUND:
-          throw new HttpException(
-            ErrorCode.MATCH_NOT_FOUND,
-            HttpStatus.NO_CONTENT,
-          );
+          throw new HttpException(error.message, HttpStatus.NO_CONTENT);
+        case ErrorCode.MATCH_ENDED:
+          throw new HttpException(error.message, HttpStatus.NOT_ACCEPTABLE);
         case ErrorCode.MULTIPLE_BET_FORBIDDEN:
-          throw new HttpException(
-            ErrorCode.MULTIPLE_BET_FORBIDDEN,
-            HttpStatus.NOT_ACCEPTABLE,
-          );
+          throw new HttpException(error.message, HttpStatus.NOT_ACCEPTABLE);
         case ErrorCode.BET_AMOUNT_NOT_VALID:
-          throw new HttpException(
-            ErrorCode.BET_AMOUNT_NOT_VALID,
-            HttpStatus.NOT_ACCEPTABLE,
-          );
+          throw new HttpException(error.message, HttpStatus.NOT_ACCEPTABLE);
         default:
           throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
       }
@@ -140,6 +129,8 @@ export class BetService {
               point: FieldValue.increment(bet.result_amount),
             });
         }
+
+        await this.notificationService.sendBetNotification(match, bet);
       }
     } catch (error) {
       throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);

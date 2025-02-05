@@ -3,9 +3,10 @@ import { FirebaseModule } from '../firebase/firebase.module';
 import { BetService } from './bet.service';
 import { BetController } from './bet.controller';
 import { NotificationsModule } from 'src/notifications/notifications.module';
+import { MatchModule } from 'src/match/match.module';
 
 @Module({
-  imports: [FirebaseModule, NotificationsModule],
+  imports: [FirebaseModule, MatchModule, NotificationsModule],
   controllers: [BetController],
   providers: [BetService],
   exports: [BetService],

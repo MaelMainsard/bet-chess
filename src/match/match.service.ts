@@ -10,13 +10,6 @@ export class MatchService {
     this.db = firebaseService.getFirestore();
   }
 
-  async findAll(): Promise<Match[]> {
-    const snapshot = await this.db.collection('match').get();
-    return snapshot.docs.map((doc) =>
-      Match.fromJSON({ id: doc.id, ...doc.data() }),
-    );
-  }
-
   async findById(id: string): Promise<Match | null> {
     const doc = await this.db.collection('match').doc(id).get();
     return doc.exists ? Match.fromJSON({ id: doc.id, ...doc.data() }) : null;
