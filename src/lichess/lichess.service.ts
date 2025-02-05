@@ -75,12 +75,7 @@ export class LichessService implements OnModuleInit {
 
         try {
           const data = JSON.parse(jsonString);
-          console.log('New game event:', data);
-          let cote: Cote = {
-            blackWin: 1,
-            whiteWin: 1,
-            draw: 1,
-          };
+          console.log('New game event: 22', data);
 
           const match = new Match({
             id: gameId,
@@ -97,8 +92,8 @@ export class LichessService implements OnModuleInit {
               data.status == 34
                 ? MatchResult.DRAW
                 : matchResultFromString(data.winner),
-            cote: cote,
           });
+          console.log('match', match);
 
           await this.matchService.setMatch(match);
 
