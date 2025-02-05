@@ -30,7 +30,6 @@ export class Match {
   constructor(data: Partial<Match>) {
     Object.assign(this, data);
     this.computeCote();
-    console.log('this.cote', this.cote);
   }
 
   toJSON() {
