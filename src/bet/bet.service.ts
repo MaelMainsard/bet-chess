@@ -98,8 +98,8 @@ export class BetService {
           [MatchResult.DRAW]: match.cote.draw,
         };
 
-        bet.result = bet.bet === match.result;
-        bet.result_amount = bet.result
+        bet.isResultWin = bet.bet === match.result;
+        bet.result_amount = bet.isResultWin
           ? bet.bet_amount * coteMap[match.result!]
           : 0;
 
@@ -111,7 +111,7 @@ export class BetService {
           .doc(uid!)
           .set(betWithoutUid);
 
-        if (bet.result) {
+        if (bet.isResultWin) {
           await this.firebaseService
             .getFirestore()
             .collection(this.USER_COLLECTION)

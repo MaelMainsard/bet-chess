@@ -6,7 +6,6 @@ import { Bet } from 'src/bet/interfaces/bet.interface';
 
 @Injectable()
 export class NotificationService {
-  private readonly NOTIFICATIONS_COLLECTION = 'notifications';
   private readonly USERS_COLLECTION = 'users';
 
   private db: FirebaseFirestore.Firestore;
@@ -34,10 +33,10 @@ export class NotificationService {
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: userDoc.data()!.email,
-      subject: bet.result
+      subject: bet.isResultWin
         ? 'Vous avez gagné votre pari !'
         : 'Vous avez perdu votre pari !',
-      text: bet.result
+      text: bet.isResultWin
         ? `Gains : ${bet.result_amount}`
         : `Pertes : ${bet.bet_amount}`,
     };
