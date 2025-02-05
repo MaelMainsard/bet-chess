@@ -9,6 +9,7 @@ import { firestore } from 'firebase-admin';
 import QuerySnapshot = firestore.QuerySnapshot;
 import FieldValue = firestore.FieldValue;
 import { NotificationService } from 'src/notifications/notification.service';
+import { ErrorCode } from './constant/errors.code';
 
 dotenv.config();
 
@@ -32,7 +33,7 @@ export class BetService {
         .get();
 
       if (!matchDoc.exists) {
-        throw new HttpException('Match not found', HttpStatus.NOT_FOUND);
+        throw new Error(ErrorCode.MATCH_NOT_FOUND);
       }
 
       const query: QuerySnapshot = await this.firebaseService
@@ -42,10 +43,11 @@ export class BetService {
         .get();
 
       if (!query.empty) {
-        throw new HttpException(
-          "You can't bet in the same match multiple time !",
-          HttpStatus.FORBIDDEN,
-        );
+        throw new Error(ErrorCode.MULTIPLE_BET_FORBIDDEN);
+      }
+
+      if (user.point < credentials.betAmount) {
+        throw new Error(ErrorCode.BET_AMOUNT_NOT_VALID);
       }
 
       await this.firebaseService
@@ -66,7 +68,7 @@ export class BetService {
       await this.firebaseService
         .getFirestore()
         .collection(this.BET_COLLECTION)
-        .doc(credentials.matchId)
+        .doc()
         .set(newBet);
 
       return newBet;
