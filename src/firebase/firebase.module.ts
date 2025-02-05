@@ -1,5 +1,5 @@
 import { Global, Module } from '@nestjs/common';
-import { FirebaseService } from '../config/firebase.config';
+import { FirebaseService } from './firebase.config';
 
 @Global()
 @Module({

@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { FirebaseService } from '../config/firebase.config';
+import { FirebaseService } from '../firebase/firebase.config';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { User } from './interfaces/user.interface';
@@ -10,7 +10,8 @@ import { UserRecord } from 'firebase-admin/lib/auth';
 import { ErrorCode } from './constant/errors.code';
 import { firestore } from 'firebase-admin';
 import QuerySnapshot = firestore.QuerySnapshot;
-import DocumentSnapshot = firestore.DocumentSnapshot;
+import * as dotenv from 'dotenv';
+dotenv.config();
 
 @Injectable()
 export class AuthService {
@@ -19,7 +20,6 @@ export class AuthService {
     'https://identitytoolkit.googleapis.com/v1/accounts:signInWithCustomToken';
   private readonly SIGN_WITH_PASSWORD_URL =
     'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword';
-  private readonly API_KEY = 'AIzaSyCbpHBZjZbYefK3IUaE91yxoj2kcWYaa70';
 
   constructor(
     private readonly firebaseService: FirebaseService,
@@ -27,7 +27,6 @@ export class AuthService {
   ) {}
 
   async register(credentials: RegisterDto): Promise<AuthResponse> {
-
     try {
       const existingUsernameQuery: QuerySnapshot = await this.firebaseService
         .getFirestore()
@@ -65,10 +64,13 @@ export class AuthService {
         .createCustomToken(userRecord.uid);
 
       const response: any = await firstValueFrom(
-        this.httpService.post(`${this.CUSTOM_TOKEN_URL}?key=${this.API_KEY}`, {
-          token: customToken,
-          returnSecureToken: true,
-        }),
+        this.httpService.post(
+          `${this.CUSTOM_TOKEN_URL}?key=${process.env.API_KEY}`,
+          {
+            token: customToken,
+            returnSecureToken: true,
+          },
+        ),
       );
 
       return {
@@ -84,13 +86,18 @@ export class AuthService {
           createdAt: userData.createdAt,
         },
       };
-
     } catch (error) {
       switch (error.message) {
         case ErrorCode.USERNAME_ALREADY_IN_USE:
-          throw new HttpException(ErrorCode.USERNAME_ALREADY_IN_USE, HttpStatus.CONFLICT)
+          throw new HttpException(
+            ErrorCode.USERNAME_ALREADY_IN_USE,
+            HttpStatus.CONFLICT,
+          );
         default:
-          throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR)
+          throw new HttpException(
+            error.message,
+            HttpStatus.INTERNAL_SERVER_ERROR,
+          );
       }
     }
   }
@@ -99,7 +106,7 @@ export class AuthService {
     try {
       const response = await firstValueFrom(
         this.httpService.post(
-          `${this.SIGN_WITH_PASSWORD_URL}?key=${this.API_KEY}`,
+          `${this.SIGN_WITH_PASSWORD_URL}?key=${process.env.API_KEY}`,
           {
             email: credentials.email,
             password: credentials.password,
@@ -136,7 +143,10 @@ export class AuthService {
         token_type: 'Bearer',
       };
     } catch (error) {
-      throw new HttpException(ErrorCode.WRONG_EMAIL_OR_PASSWORD, HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        ErrorCode.WRONG_EMAIL_OR_PASSWORD,
+        HttpStatus.BAD_REQUEST,
+      );
     }
   }
 }
