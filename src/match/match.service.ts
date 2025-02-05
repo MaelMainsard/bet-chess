@@ -12,12 +12,14 @@ export class MatchService {
 
   async findAll(): Promise<Match[]> {
     const snapshot = await this.db.collection('match').get();
-    return snapshot.docs.map((doc) => new Match({ id: doc.id, ...doc.data() }));
+    return snapshot.docs.map((doc) =>
+      Match.fromJSON({ id: doc.id, ...doc.data() }),
+    );
   }
 
   async findById(id: string): Promise<Match | null> {
     const doc = await this.db.collection('match').doc(id).get();
-    return doc.exists ? new Match({ id: doc.id, ...doc.data() }) : null;
+    return doc.exists ? Match.fromJSON({ id: doc.id, ...doc.data() }) : null;
   }
 
   async findAllOngoing(): Promise<Match[]> {
@@ -26,7 +28,9 @@ export class MatchService {
       .where('status', '==', MatchStatus.ONGOING) // Filtre les matchs en cours
       .get();
 
-    return snapshot.docs.map((doc) => new Match({ id: doc.id, ...doc.data() }));
+    return snapshot.docs.map((doc) =>
+      Match.fromJSON({ id: doc.id, ...doc.data() }),
+    );
   }
 
   async setMatch(match: Match) {
