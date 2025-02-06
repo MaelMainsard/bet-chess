@@ -1,9 +1,6 @@
 name: Test and Deploy Pipeline
 
 on:
-#  push:
-#    branches:
-#      - main
   pull_request:
     branches:
       - main
@@ -62,17 +59,6 @@ jobs:
         run: |
           echo "=== Firebase Emulator Logs ==="
           cat firebase-debug.log || true
-
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.TOKEN }}
-        with:
-          tag_name: ${{ github.run_number }}
-          release_name: Release ${{ github.run_number }}
-          draft: false
-          prerelease: false
 
       - name: Nettoyer les fichiers sensibles
         if: always()
