@@ -1,4 +1,4 @@
-name: Test Pipeline
+name: Test and Deploy Pipeline
 
 on:
   push:
@@ -9,11 +9,18 @@ on:
       - main
 
 jobs:
-  test:
+  lint-test-deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout du code
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # Important pour la gestion des tags
+
+      - name: Configuration Git
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
 
       - name: Installer Node.js
         uses: actions/setup-node@v3
@@ -23,5 +30,24 @@ jobs:
       - name: Installer les dépendances
         run: npm install
 
-      - name: Lancer les tests
+      - name: Créer le fichier .env
+        run: echo "${{ secrets.ENV_FILE }}" > .env
+
+      - name: Créer le fichier de configuration
+        run: echo '${{ secrets.CONFIG_FIREBASE }}' > firebase-service-account.json
+
+      - name: Linter
+        run: npm run lint # Assurez-vous d'avoir un script lint dans package.json
+
+      - name: Tests
         run: npm test
+
+      - name: Création et push du tag
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && success()
+        run: |
+          # Récupérer la version depuis package.json
+          VERSION=$(node -p "require('./package.json').version")
+          # Créer le tag
+          git tag -a "v$VERSION" -m "Release version $VERSION"
+          # Push le tag
+          git push origin "v$VERSION"
