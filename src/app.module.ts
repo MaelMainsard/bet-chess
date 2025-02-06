@@ -5,6 +5,7 @@ import { AuthModule } from './auth/auth.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { MatchModule } from './match/match.module';
 import { LichessModule } from './lichess/lichess.module';
+import { BetModule } from './bet/bet.module';
 import * as dotenv from 'dotenv';
 dotenv.config();
 
@@ -19,6 +20,7 @@ dotenv.config();
     FirebaseModule,
     AuthModule,
     NotificationsModule,
+    BetModule,
   ],
 })
 export class AppModule {}

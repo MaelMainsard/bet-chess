@@ -16,10 +16,20 @@ dotenv.config();
 @Injectable()
 export class AuthService {
   private readonly USERS_COLLECTION = 'users';
-  private readonly CUSTOM_TOKEN_URL =
-    'https://identitytoolkit.googleapis.com/v1/accounts:signInWithCustomToken';
-  private readonly SIGN_WITH_PASSWORD_URL =
-    'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword';
+
+  private get AUTH_BASE_URL(): string {
+    return process.env.FIREBASE_AUTH_EMULATOR_HOST
+      ? `http://${process.env.FIREBASE_AUTH_EMULATOR_HOST}/identitytoolkit.googleapis.com/v1`
+      : 'https://identitytoolkit.googleapis.com/v1';
+  }
+
+  private get CUSTOM_TOKEN_URL(): string {
+    return `${this.AUTH_BASE_URL}/accounts:signInWithCustomToken`;
+  }
+
+  private get SIGN_WITH_PASSWORD_URL(): string {
+    return `${this.AUTH_BASE_URL}/accounts:signInWithPassword`;
+  }
 
   constructor(
     private readonly firebaseService: FirebaseService,
@@ -48,6 +58,7 @@ export class AuthService {
       const userData: User = {
         email: credentials.email,
         username: credentials.username,
+        point: 100,
         lastLogin: new Date(),
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -81,6 +92,7 @@ export class AuthService {
           uid: userRecord.uid,
           email: userData.email,
           username: userData.username,
+          point: userData.point,
           lastLogin: userData.lastLogin,
           updatedAt: userData.updatedAt,
           createdAt: userData.createdAt,
@@ -104,6 +116,7 @@ export class AuthService {
 
   async login(credentials: LoginDto): Promise<AuthResponse> {
     try {
+
       const response = await firstValueFrom(
         this.httpService.post(
           `${this.SIGN_WITH_PASSWORD_URL}?key=${process.env.API_KEY}`,
@@ -131,7 +144,7 @@ export class AuthService {
       await this.firebaseService
         .getFirestore()
         .collection(this.USERS_COLLECTION)
-        .doc(response.data.localId)
+        .doc(userDoc.id)
         .update({
           lastLogin: new Date(),
           updatedAt: new Date(),
@@ -140,7 +153,7 @@ export class AuthService {
       return {
         id_token: response.data.idToken,
         expires_in: response.data.expiresIn,
-        token_type: 'Bearer',
+        token_type: 'Bearer'
       };
     } catch (error) {
       throw new HttpException(

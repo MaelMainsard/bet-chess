@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
-import { NotificationsController } from './notifications.controller';
 import { FirebaseModule } from '../firebase/firebase.module';
+import { NotificationService } from './notification.service';
 
 @Module({
   imports: [FirebaseModule],
-  controllers: [NotificationsController],
+  exports: [NotificationService],
+  providers: [NotificationService],
 })
 export class NotificationsModule {}
