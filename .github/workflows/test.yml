@@ -40,7 +40,7 @@ jobs:
         run: echo '${{ secrets.CONFIG_FIREBASE }}' > firebase-service-account.json
 
       - name: Tests
-        run: npm run test:e2e
+        run: npm run test:e2e --token ${{ secrets.FIREBASE_TOKEN }}
 
       - name: Création et push du tag
         if: github.event_name == 'push' && github.ref == 'refs/heads/main' && success()
