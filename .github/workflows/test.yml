@@ -10,6 +10,10 @@ on:
 
 jobs:
   lint-test-deploy:
+    permissions:
+      id-token: write
+      contents: read
+      repository-projects: write
     runs-on: ubuntu-latest
     steps:
       - name: Checkout du code
@@ -59,16 +63,11 @@ jobs:
           echo "=== Firebase Emulator Logs ==="
           cat firebase-debug.log || true
 
-      - name: Création et push du tag
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Tag branch
         run: |
-          git config --global user.email "github-actions@github.com"
-          git config --global user.name "GitHub Actions"
           VERSION=$(node -p "require('./package.json').version")
-          git tag -a "v$VERSION" -m "Release version $VERSION"
-          git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
-          git push origin "v$VERSION"
+          git tag -f -a ${VERSION} -m "Release ${VERSION}."
+          git push -f origin ${VERSION}
 
       - name: Nettoyer les fichiers sensibles
         if: always()
