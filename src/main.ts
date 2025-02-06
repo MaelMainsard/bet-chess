@@ -1,8 +1,10 @@
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
+import { AppService } from './app.service';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { config } from 'process';
+import { setupSwagger } from './doc/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -16,15 +18,7 @@ async function bootstrap() {
       forbidNonWhitelisted: true,
     }),
   );
-
-  const config = new DocumentBuilder()
-    .setTitle('BET CHESS API')
-    .setDescription('The Bet Chess API description')
-    .setVersion('1.0')
-    .addTag('Bets')
-    .build();
-  const documentFactory = () => SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, documentFactory);
+  setupSwagger(app);
 
   await app.listen(3000);
 }

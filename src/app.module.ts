@@ -9,15 +9,15 @@ import { BetModule } from './bet/bet.module';
 
 @Module({
   imports: [
+    AuthModule,
     MatchModule,
+    BetModule,
     ConfigModule.forRoot({
       isGlobal: true,
     }),
     LichessModule,
     FirebaseModule,
-    AuthModule,
     NotificationsModule,
-    BetModule,
   ],
 })
 export class AppModule {}

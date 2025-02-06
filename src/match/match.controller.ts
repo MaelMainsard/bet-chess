@@ -1,6 +1,8 @@
 import { Controller, Get, Param } from '@nestjs/common';
 import { MatchService } from './match.service';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Match')
 @Controller('match')
 export class MatchController {
   constructor(private readonly matchService: MatchService) {}

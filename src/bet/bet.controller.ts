@@ -6,14 +6,16 @@ import { AuthGuard } from '../auth/guards/auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { User } from '../auth/interfaces/user.interface';
 import { createBetBody } from './constant/api.example';
-import { ApiBody } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Bet')
 @Controller('bet')
 export class BetController {
   constructor(private readonly betService: BetService) {}
 
   @Post()
   @UseGuards(AuthGuard)
+  @ApiBearerAuth()
   @ApiBody(createBetBody)
   async createBet(
     @Body() credentials: AddBetDto,
