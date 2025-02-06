@@ -13,6 +13,10 @@ RUN npm install --only=production
 # Copier tout le code source
 COPY . .
 
+#Copie les secret de cloud run
+RUN echo "$ENV" > .env
+RUN echo "$FIREBASE_CONFIG" > firebase-service-account.json
+
 # Compiler l'application (si TypeScript)
 RUN npm run build
 

@@ -1,30 +1,67 @@
-name: Test Pipeline
+name: Test and Deploy Pipeline
 
 on:
-  push:
-    branches:
-      - main
   pull_request:
     branches:
       - main
 
 jobs:
-  test:
+  lint-test-deploy:
+    permissions:
+      id-token: write
+      contents: read
+      repository-projects: write
     runs-on: ubuntu-latest
     steps:
       - name: Checkout du code
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
       - name: Installer Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 18
 
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Installer Firebase CLI
+        run: npm install -g firebase-tools
+
       - name: Installer les dépendances
         run: npm install
 
-      - name: Install Firebase CLI
-        run: npm install -g firebase-tools
+      - name: Créer le fichier .env
+        run: echo "${{ secrets.ENV_FILE }}" > .env
 
-      - name: Lancer les tests
-        run: npm run test:e2e
+      - name: Créer le fichier de configuration Firebase
+        run: echo '${{ secrets.CONFIG_FIREBASE }}' > firebase-service-account.json
+
+      - name: Start Firebase Emulator and Run Tests
+        run: |
+          # Démarrer l'émulateur Firebase en arrière-plan
+          firebase emulators:start &
+          
+          # Attendre que l'émulateur soit prêt
+          while ! nc -z localhost 9099; do   
+            echo "En attente de l'émulateur Firebase..."
+            sleep 1
+          done
+          
+          echo "L'émulateur Firebase est prêt !"
+          
+          # Exécuter les tests
+          npm run test:ci
+
+      - name: Logs en cas d'échec
+        if: failure()
+        run: |
+          echo "=== Firebase Emulator Logs ==="
+          cat firebase-debug.log || true
+
+      - name: Nettoyer les fichiers sensibles
+        if: always()
+        run: |
+          rm -f .env
+          rm -f firebase-service-account.json
