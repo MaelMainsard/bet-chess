@@ -61,4 +61,14 @@ export class UserService {
       .get();
     return !query.empty;
   }
+
+  // Find a user by id
+  async emailExists(email: string): Promise<boolean> {
+    const query = await this.firebaseService
+      .getFirestore()
+      .collection(this.USER_COLLECTION)
+      .where('email', '==', email)
+      .get();
+    return !query.empty;
+  }
 }
