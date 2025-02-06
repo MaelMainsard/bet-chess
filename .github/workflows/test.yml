@@ -51,7 +51,7 @@ jobs:
           echo "L'émulateur Firebase est prêt !"
           
           # Exécuter les tests
-          npm run test:e2e   
+          npm run test:ci
 
       - name: Logs en cas d'échec
         if: failure()
