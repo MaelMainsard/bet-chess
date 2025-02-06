@@ -24,4 +24,4 @@ jobs:
         run: npm install
 
       - name: Lancer les tests
-        run: npm test
+        run: npm run test:e2e
