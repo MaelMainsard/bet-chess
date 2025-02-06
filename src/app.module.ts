@@ -11,16 +11,16 @@ dotenv.config();
 
 @Module({
   imports: [
+    AuthModule,
     MatchModule,
+    BetModule,
     ConfigModule.forRoot({
       isGlobal: true,
     }),
     // Vérifier l'environnement avant d'ajouter le LichessModule
     ...(process.env.NODE_ENV !== 'test' ? [LichessModule] : []),
     FirebaseModule,
-    AuthModule,
     NotificationsModule,
-    BetModule,
   ],
 })
 export class AppModule {}
