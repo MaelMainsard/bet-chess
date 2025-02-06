@@ -5,6 +5,8 @@ import { BetService } from './bet.service';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { User } from '../auth/interfaces/user.interface';
+import { createBetBody } from './constant/api.example';
+import { ApiBody } from '@nestjs/swagger';
 
 @Controller('bet')
 export class BetController {
@@ -12,7 +14,11 @@ export class BetController {
 
   @Post()
   @UseGuards(AuthGuard)
-  async createBet(@Body() credentials: AddBetDto, @CurrentUser() user: User): Promise<Bet> {
+  @ApiBody(createBetBody)
+  async createBet(
+    @Body() credentials: AddBetDto,
+    @CurrentUser() user: User,
+  ): Promise<Bet> {
     return this.betService.newBet(credentials, user);
   }
 }
