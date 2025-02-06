@@ -15,8 +15,10 @@ import { BetService } from 'src/bet/bet.service';
 @Injectable()
 export class LichessService implements OnModuleInit {
   private readonly channelsUrl = 'https://lichess.org/api/tv/channels';
-  private readonly streamUrl =
+  private readonly streamGameUrl =
     'https://lichess.org/api/stream/games/bet-chess-stream';
+  private readonly readGameUrl = 'https://lichess.org/game/export/';
+
   private currentStream: any = null;
 
   constructor(
@@ -26,7 +28,7 @@ export class LichessService implements OnModuleInit {
 
   onModuleInit() {
     setTimeout(() => this.checkOngoingGames(), 100);
-    setTimeout(() => this.startWatchingBulletGames(), 4000);
+    setTimeout(() => this.startWatchingBulletGames(), 1000);
   }
 
   private async checkOngoingGames() {
@@ -34,9 +36,7 @@ export class LichessService implements OnModuleInit {
     const matches = await this.matchService.findAllOngoing();
 
     for (const match of matches) {
-      const response = await axios.get(
-        'https://lichess.org/game/export/' + match.id,
-      );
+      const response = await axios.get(this.readGameUrl + match.id);
       const game = response.data;
       if (!game) continue;
       if (game.status <= 20) continue;
@@ -78,7 +78,7 @@ export class LichessService implements OnModuleInit {
 
       const response = await axios({
         method: 'post',
-        url: this.streamUrl,
+        url: this.streamGameUrl,
         headers: {
           'Content-Type': 'text/plain',
         },
