@@ -30,17 +30,17 @@ jobs:
       - name: Installer les dépendances
         run: npm install
 
+      - name: Installer Firebase CLI
+        run: npm install -g firebase-tools
+
       - name: Créer le fichier .env
         run: echo "${{ secrets.ENV_FILE }}" > .env
 
       - name: Créer le fichier de configuration
         run: echo '${{ secrets.CONFIG_FIREBASE }}' > firebase-service-account.json
 
-      - name: Linter
-        run: npm run lint # Assurez-vous d'avoir un script lint dans package.json
-
       - name: Tests
-        run: npm test
+        run: npm run test:e2e
 
       - name: Création et push du tag
         if: github.event_name == 'push' && github.ref == 'refs/heads/main' && success()
