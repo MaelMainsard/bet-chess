@@ -1,30 +1,29 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { FirebaseService } from '../firebase/firebase.config';
-import * as dotenv from 'dotenv';
+import { FirebaseService } from '../firebase/firebase.service';
 import { AddBetDto } from './dto/add-bet.dto';
-import { User } from '../auth/interfaces/user.interface';
 import { Bet } from './interfaces/bet.interface';
 import { Match, MatchResult, MatchStatus } from '../match/match';
-import { firestore } from 'firebase-admin';
-import QuerySnapshot = firestore.QuerySnapshot;
-import FieldValue = firestore.FieldValue;
 import { NotificationService } from 'src/notifications/notification.service';
 import { ErrorCode } from './constant/errors.code';
 import { MatchService } from 'src/match/match.service';
+import { UserService } from 'src/user/user.service';
+import { User } from 'src/user/user';
+import * as dotenv from 'dotenv';
 
 dotenv.config();
 
 @Injectable()
 export class BetService {
   private readonly BET_COLLECTION = 'bet';
-  private readonly USER_COLLECTION = 'users';
 
   constructor(
     private readonly firebaseService: FirebaseService,
+    private readonly userService: UserService,
     private readonly matchService: MatchService,
     private readonly notificationService: NotificationService,
   ) {}
 
+  // Place a new bet on a match
   async newBet(credentials: AddBetDto, user: User): Promise<Bet> {
     try {
       const match = await this.matchService.findById(credentials.matchId);
@@ -32,7 +31,7 @@ export class BetService {
       if (match.status == MatchStatus.ENDED)
         throw new Error(ErrorCode.MATCH_ENDED);
 
-      const query: QuerySnapshot = await this.firebaseService
+      const query = await this.firebaseService
         .getFirestore()
         .collection(this.BET_COLLECTION)
         .where('matchId', '==', credentials.matchId)
@@ -46,13 +45,7 @@ export class BetService {
         throw new Error(ErrorCode.BET_AMOUNT_NOT_VALID);
       }
 
-      await this.firebaseService
-        .getFirestore()
-        .collection(this.USER_COLLECTION)
-        .doc(user.uid!)
-        .update({
-          point: FieldValue.increment(-credentials.betAmount),
-        });
+      await this.userService.incrementPoints(user.uid, -credentials.betAmount);
 
       const newBet: Bet = {
         matchId: credentials.matchId,
@@ -84,9 +77,10 @@ export class BetService {
     }
   }
 
+  // When the match ended, close the bets and notify the bettors
   async onMatchEnded(match: Match) {
     try {
-      const query: QuerySnapshot = await this.firebaseService
+      const query = await this.firebaseService
         .getFirestore()
         .collection(this.BET_COLLECTION)
         .where('matchId', '==', match.id)
@@ -121,13 +115,7 @@ export class BetService {
           .set(betWithoutUid);
 
         if (bet.isResultWin) {
-          await this.firebaseService
-            .getFirestore()
-            .collection(this.USER_COLLECTION)
-            .doc(bet.userId)
-            .update({
-              point: FieldValue.increment(bet.result_amount),
-            });
+          await this.userService.incrementPoints(bet.userId, bet.result_amount);
         }
 
         await this.notificationService.sendBetNotification(match, bet);
