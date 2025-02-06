@@ -1,5 +1,62 @@
 # Choix Techniques
 
+## Modèle de données
+
+### 1. **User**
+Le modèle `User` représente un utilisateur avec des informations personnelles, des points et des informations de connexion.
+
+| Champ       | Type     | Description                                        |
+|-------------|----------|----------------------------------------------------|
+| `uid`       | `string` | Identifiant unique de l'utilisateur.               |
+| `createdAt` | `Date`   | Date de création du compte utilisateur.            |
+| `updatedAt` | `Date`   | Date de la dernière mise à jour du compte.         |
+| `lastLogin` | `Date`   | Date et heure de la dernière connexion.            |
+| `username`  | `string` | Nom d'utilisateur.                                |
+| `email`     | `string` | Adresse email de l'utilisateur.                   |
+| `point`     | `number` | Points accumulés par l'utilisateur.               |
+
+### 2. **Player**
+Le modèle `Player` représente un joueur avec une évaluation de performance (rating).
+
+| Champ   | Type     | Description                                  |
+|---------|----------|----------------------------------------------|
+| `id`    | `string` | Identifiant unique du joueur.                |
+| `rating`| `number` | Évaluation du joueur, généralement un score. |
+
+### 3. **Match**
+Le modèle `Match` représente une partie entre deux joueurs, avec les joueurs blancs et noirs, le statut de la partie, les cotes (probabilités) et le résultat.
+
+| Champ           | Type           | Description                                                      |
+|-----------------|----------------|------------------------------------------------------------------|
+| `id`            | `string`       | Identifiant unique du match.                                     |
+| `whitePlayer`   | `Player`       | Joueur avec les pièces blanches, de type `Player`.               |
+| `blackPlayer`   | `Player`       | Joueur avec les pièces noires, de type `Player`.                 |
+| `status`        | `MatchStatus`  | Statut du match : `ONGOING` ou `ENDED`.                          |
+| `cote`          | `Cote`         | Cotes de la partie (probabilités de victoire ou égalité).        |
+| `result`        | `MatchResult`  | Résultat du match : `WHITE`, `BLACK`, ou `DRAW`, ou `null` si en cours. |
+
+Pas de souci ! Voici l'ajout du modèle `Bet` dans ton schéma de données documenté.
+
+---
+
+#### 4. **Bet**
+Le modèle `Bet` représente un pari effectué par un utilisateur sur un match, incluant le résultat du pari, le montant parié et les gains/pertes associés.
+
+| Champ         | Type     | Description                                           |
+|---------------|----------|-------------------------------------------------------|
+| `uid`         | `string` | Identifiant unique du pari.                          |
+| `matchId`     | `string` | Identifiant du match sur lequel le pari a été effectué. |
+| `userId`      | `string` | Identifiant de l'utilisateur ayant effectué le pari. |
+| `bet`         | `MatchResult` | Résultat du pari (peut être `WHITE`, `BLACK` ou `DRAW`). |
+| `isResultWin` | `boolean` | Indique si le pari a été gagné (`true`) ou perdu (`false`). |
+| `bet_amount`  | `number` | Montant parié par l'utilisateur.                      |
+| `result_amount` | `number` | Montant gagné ou perdu en fonction du résultat du pari. |
+
+### Remarques
+- **Relation entre `Player` et `Match`** : Un `Match` implique deux `Player`, un joueur avec les pièces blanches et un autre avec les pièces noires. Ces joueurs sont représentés par leurs `id` et `rating`.
+- **Cotes** : Les cotes sont calculées en fonction des ratings des joueurs, déterminant la probabilité de victoire de chaque joueur et la probabilité d'égalité.
+- **Statut et Résultat** : Le statut du match peut être soit `ONGOING` (en cours) ou `ENDED` (terminé), et une fois que le match est terminé, le résultat sera l'un des trois états : `WHITE`, `BLACK` ou `DRAW`.
+
 ## Framework : Nest.js
 
 Dans le cadre de ce projet, le choix s’est porté sur le framework Nest.js, car après avoir expérimenté Express, nous souhaitions découvrir une nouvelle approche. Nest.js offre une architecture solide, intégrant l'injection de dépendances et une prise en charge complète de TypeScript. Ce dernier garantit une gestion optimale des types et améliore la qualité du code, tout en facilitant la maintenance du projet. Il facilite aussi la réalisation des tests unitaires et des tests d'intégrations avec jest.

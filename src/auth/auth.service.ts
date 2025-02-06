@@ -47,6 +47,13 @@ export class AuthService {
       );
     }
 
+    if (await this.userService.emailExists(credentials.email)) {
+      throw new HttpException(
+        ErrorCode.EMAIL_ALREADY_IN_USE,
+        HttpStatus.CONFLICT,
+      );
+    }
+
     const userRecord: UserRecord = await this.firebaseService
       .getAuth()
       .createUser({
