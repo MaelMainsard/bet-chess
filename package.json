@@ -20,7 +20,7 @@
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "cross-env NODE_ENV=test concurrently \"npm run emulator\" \"wait-on --timeout 20000 tcp:9099 tcp:8080 && jest --config ./test/jest-e2e.json --runInBand --detectOpenHandles --forceExit\" -k"
+    "test:e2e": "cross-env NODE_ENV=test concurrently \"npm run emulator\" \"wait-on --timeout 60000 tcp:9099 tcp:8080 && jest --config ./test/jest-e2e.json --runInBand --detectOpenHandles --forceExit\" -k"
   },
   "dependencies": {
     "@nestjs/axios": "^4.0.0",
