@@ -1,0 +1,73 @@
+name: Test and Deploy Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  lint-test-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Installer Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Installer Firebase CLI
+        run: npm install -g firebase-tools
+
+      - name: Installer les dépendances
+        run: npm install
+
+      - name: Créer le fichier .env
+        run: echo "${{ secrets.ENV_FILE }}" > .env
+
+      - name: Créer le fichier de configuration Firebase
+        run: echo '${{ secrets.CONFIG_FIREBASE }}' > firebase-service-account.json
+
+      - name: Start Firebase Emulator and Run Tests
+        run: |
+          # Démarrer l'émulateur Firebase en arrière-plan
+          firebase emulators:start &
+          
+          # Attendre que l'émulateur soit prêt
+          while ! nc -z localhost 9099; do   
+            echo "En attente de l'émulateur Firebase..."
+            sleep 1
+          done
+          
+          echo "L'émulateur Firebase est prêt !"
+          
+          # Exécuter les tests
+          npm run test:ci
+
+      - name: Logs en cas d'échec
+        if: failure()
+        run: |
+          echo "=== Firebase Emulator Logs ==="
+          cat firebase-debug.log || true
+
+      - name: Création et push du tag
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && success()
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          git tag -a "v$VERSION" -m "Release version $VERSION"
+          git push origin "v$VERSION"
+
+      - name: Nettoyer les fichiers sensibles
+        if: always()
+        run: |
+          rm -f .env
+          rm -f firebase-service-account.json
