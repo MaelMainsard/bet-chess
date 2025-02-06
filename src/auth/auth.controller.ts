@@ -5,7 +5,7 @@ import { AuthResponse } from './interfaces/auth-response.interface';
 import { LoginDto } from './dto/login.dto';
 import { AuthGuard } from './guards/auth.guard';
 import { CurrentUser } from './decorators/current-user.decorator';
-import { User } from './interfaces/user.interface';
+import { User } from 'src/user/user';
 import { ApiBody, ApiTags } from '@nestjs/swagger';
 import { registerBody, loginBody } from './constant/api.example';
 @ApiTags('Auth')
