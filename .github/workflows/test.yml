@@ -11,21 +11,40 @@ on:
 jobs:
   lint-test-deploy:
     runs-on: ubuntu-latest
+    env:
+      FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
     steps:
       - name: Checkout du code
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0 # Important pour la gestion des tags
+          fetch-depth: 0
 
       - name: Configuration Git
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
 
+      # Cache pour l'émulateur Firebase
+      - name: Cache Firebase Emulators
+        uses: actions/cache@v3
+        with:
+          path: /home/runner/.cache/firebase/emulators
+          key: firebase-emulators-${{ hashFiles('**/firebase.json') }}
+          restore-keys: |
+            firebase-emulators-
+
       - name: Installer Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 18
+
+      - name: Cache des dépendances npm
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: npm-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            npm-${{ runner.os }}-
 
       - name: Installer les dépendances
         run: npm install
@@ -36,18 +55,35 @@ jobs:
       - name: Créer le fichier .env
         run: echo "${{ secrets.ENV_FILE }}" > .env
 
-      - name: Créer le fichier de configuration
+      - name: Créer le fichier de configuration Firebase
         run: echo '${{ secrets.CONFIG_FIREBASE }}' > firebase-service-account.json
 
-      - name: Tests
+      # Installation des outils globaux nécessaires
+      - name: Installer les outils globaux
+        run: npm install -g cross-env concurrently wait-on
+
+      - name: Tests E2E
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+          NODE_ENV: test
         run: npm run test:e2e
+        timeout-minutes: 10
+
+      - name: Logs en cas d'échec
+        if: failure()
+        run: |
+          echo "=== Firebase Emulator Logs ==="
+          cat firebase-debug.log || true
 
       - name: Création et push du tag
         if: github.event_name == 'push' && github.ref == 'refs/heads/main' && success()
         run: |
-          # Récupérer la version depuis package.json
           VERSION=$(node -p "require('./package.json').version")
-          # Créer le tag
           git tag -a "v$VERSION" -m "Release version $VERSION"
-          # Push le tag
           git push origin "v$VERSION"
+
+      - name: Nettoyer les fichiers sensibles
+        if: always()
+        run: |
+          rm -f .env
+          rm -f firebase-service-account.json

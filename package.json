@@ -9,7 +9,7 @@
     "dev": "NODE_ENV=development npm run start:dev",
     "start": "nest start --watch",
     "emulator": "firebase emulators:start",
-    "emulatorOnCi" : "firebase emulators:start --token ${{ secrets.FIREBASE_TOKEN }}",
+    "emulatorOnCi": "firebase emulators:start --token ${FIREBASE_TOKEN}",
     "start:dev": "concurrently \"npm run emulator\" \"nest start --watch\" --kill-others-on-fail",
     "start:debug": "nest start --debug --watch",
     "start:prod": "NODE_ENV=production node dist/main",
