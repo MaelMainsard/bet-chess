@@ -1,9 +1,9 @@
 name: Test and Deploy Pipeline
 
 on:
-  push:
-    branches:
-      - main
+#  push:
+#    branches:
+#      - main
   pull_request:
     branches:
       - main
@@ -61,11 +61,14 @@ jobs:
 
       - name: Création et push du tag
         if: github.event_name == 'push' && github.ref == 'refs/heads/main' && success()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git config --global user.email "github-actions@github.com"
           git config --global user.name "GitHub Actions"
           VERSION=$(node -p "require('./package.json').version")
           git tag -a "v$VERSION" -m "Release version $VERSION"
+          git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
           git push origin "v$VERSION"
 
       - name: Nettoyer les fichiers sensibles
