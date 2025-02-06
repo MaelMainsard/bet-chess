@@ -25,6 +25,4 @@ COPY --from=builder /app/firebase-service-account.json ./firebase-service-accoun
 
 ENV NODE_ENV=production
 
-EXPOSE ${PORT}
-
 CMD ["node", "dist/main.js"]
