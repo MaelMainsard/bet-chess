@@ -10,7 +10,6 @@ export class FirebaseService {
 
   constructor() {
     const serviceAccount = require('../../firebase-service-account.json');
-    console.log(serviceAccount);
     const isDev: boolean = process.env.NODE_ENV === 'development';
     const isTest: boolean = process.env.NODE_ENV === 'test';
     if (isDev || isTest) {
