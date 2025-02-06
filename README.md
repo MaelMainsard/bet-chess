@@ -2,9 +2,11 @@
 
 ## Contexte
 
-Ce projet consiste en une API permettant de parier sur des parties d'échecs en temps réel. L'API permet aux utilisateurs de suivre des matchs en direct, de placer des paris et de suivre leurs gains. Elle utilise des données provenant de **Lichess**.
+Ce projet consiste en une API permettant de parier sur des parties d'échecs en temps réel.
 
-L'API est construite avec le framework **Nest.js**, garantissant une architecture solide et évolutive. Le backend utilise **Firebase**.
+L'API est construite avec le framework **Nest.js**, Le backend utilise **Firebase** pour backend, et utilise des données provenant de **Lichess**.
+
+Elle permet aux utilisateurs de se connecter, suivre des matchs en direct, placer des paris et de suivre leurs gains.
 
 ## Configuration de l'Environnement de Développement
 
