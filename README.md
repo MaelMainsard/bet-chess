@@ -38,6 +38,12 @@ npm install
 
 - Ajoutez à la racine `firebase-service-account.json` et `.env`
 
+4. Lancez l'API :
+
+```bash
+npm run dev
+```
+
 ## Déploiement
 
 Le déploiement de l'API est automatisé via **Cloud Run**, un service de Google Cloud permettant de déployer des applications conteneurisées. À chaque mise à jour de la branch main, un pipeline CI/CD se déclenche pour construire une image Docker et la déployer.
