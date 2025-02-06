@@ -16,10 +16,21 @@ dotenv.config();
 
 @Injectable()
 export class AuthService {
-  private readonly CUSTOM_TOKEN_URL =
-    'https://identitytoolkit.googleapis.com/v1/accounts:signInWithCustomToken';
-  private readonly SIGN_WITH_PASSWORD_URL =
-    'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword';
+  private get AUTH_BASE_URL(): string {
+    const isDev: boolean = process.env.NODE_ENV === 'development';
+    const isTest: boolean = process.env.NODE_ENV === 'test';
+    return isDev || isTest
+      ? `http://${process.env['FIREBASE_AUTH_EMULATOR_HOST']}/identitytoolkit.googleapis.com/v1`
+      : 'https://identitytoolkit.googleapis.com/v1';
+  }
+
+  private get CUSTOM_TOKEN_URL(): string {
+    return `${this.AUTH_BASE_URL}/accounts:signInWithCustomToken`;
+  }
+
+  private get SIGN_WITH_PASSWORD_URL(): string {
+    return `${this.AUTH_BASE_URL}/accounts:signInWithPassword`;
+  }
 
   constructor(
     private readonly firebaseService: FirebaseService,

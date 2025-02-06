@@ -6,18 +6,21 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
+    "dev": "NODE_ENV=development npm run start:dev",
+    "start": "nest start --watch",
+    "emulator": "firebase emulators:start",
+    "start:dev": "concurrently \"npm run emulator\" \"nest start --watch\" --kill-others-on-fail",
+    "start:debug": "nest start --debug --watch",
+    "start:prod": "NODE_ENV=production node dist/main",
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-    "start": "nest start",
-    "start:dev": "nest start --watch",
-    "start:debug": "nest start --debug --watch",
-    "start:prod": "node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
-    "test": "jest",
+    "lint:fix": "npm run format && npm run lint",
+    "test": "NODE_ENV=test jest",
     "test:watch": "jest --watch",
-    "test:cov": "jest --coverage",
+    "test:coverage": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "cross-env NODE_ENV=test concurrently \"npm run emulator\" \"wait-on --timeout 20000 tcp:9099 tcp:8080 && jest --config ./test/jest-e2e.json --runInBand --detectOpenHandles --forceExit\" -k"
   },
   "dependencies": {
     "@nestjs/axios": "^4.0.0",
@@ -28,6 +31,7 @@
     "axios": "^1.7.9",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
+    "cross-env": "^7.0.3",
     "eventsource": "^3.0.5",
     "firebase": "^11.2.0",
     "firebase-admin": "^13.0.2",
@@ -47,6 +51,7 @@
     "@types/jest": "^29.5.14",
     "@types/node": "^22.10.7",
     "@types/supertest": "^6.0.2",
+    "concurrently": "^9.1.2",
     "eslint": "^9.18.0",
     "eslint-config-prettier": "^10.0.1",
     "eslint-plugin-prettier": "^5.2.2",
@@ -60,7 +65,8 @@
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.7.3",
-    "typescript-eslint": "^8.20.0"
+    "typescript-eslint": "^8.20.0",
+    "wait-on": "^8.0.2"
   },
   "jest": {
     "moduleFileExtensions": [
@@ -77,6 +83,9 @@
       "**/*.(t|j)s"
     ],
     "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "moduleNameMapper": {
+      "^src/(.*)$": "<rootDir>/$1"
+    }
   }
 }
