@@ -1,4 +1,4 @@
-import { User } from './user.interface';
+import { User } from 'src/user/user';
 
 export interface AuthResponse {
   id_token: string;

@@ -1,9 +1,7 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import { FirebaseService } from '../firebase/firebase.config';
 import axios from 'axios';
 import {
   Match,
-  Cote,
   matchResultFromString,
   MatchStatus,
   MatchResult,
@@ -27,11 +25,12 @@ export class LichessService implements OnModuleInit {
   ) {}
 
   onModuleInit() {
-    setTimeout(() => this.checkOngoingGames(), 100);
+    setTimeout(() => this.checkOngoingMatches(), 100);
     setTimeout(() => this.startWatchingBulletGames(), 1000);
   }
 
-  private async checkOngoingGames() {
+  // For every match with the ONGOING status, check if it already ended. If so, close the bets.
+  private async checkOngoingMatches() {
     console.log('Fetching ongoing matches...');
     const matches = await this.matchService.findAllOngoing();
 
@@ -47,6 +46,7 @@ export class LichessService implements OnModuleInit {
     }
   }
 
+  // Find a bullet game to then steam it.
   private async startWatchingBulletGames() {
     try {
       // Step 1: Fetch Lichess TV Channels to get the Bullet game ID
@@ -59,7 +59,6 @@ export class LichessService implements OnModuleInit {
         return;
       }
 
-      // Step 2: Stream the game using the gameId
       this.streamGame(gameId);
     } catch (error) {
       console.error('Error fetching Bullet game ID:', error);
@@ -67,6 +66,7 @@ export class LichessService implements OnModuleInit {
     }
   }
 
+  // Create a match corresponding to the game, and when the match ends, close the bets and find another game.
   private async streamGame(gameId: string) {
     try {
       console.log(`Streaming game ${gameId}...`);
@@ -116,6 +116,7 @@ export class LichessService implements OnModuleInit {
     }
   }
 
+  // Update a match with the data from a lichess game.
   private async updateMatch(gameId: string, game): Promise<Match> {
     const match = new Match({
       id: gameId,
