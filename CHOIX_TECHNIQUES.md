@@ -54,7 +54,7 @@ Le modèle `Bet` représente un pari effectué par un utilisateur sur un match, 
 
 ### Remarques
 - **Relation entre `Player` et `Match`** : Un `Match` implique deux `Player`, un joueur avec les pièces blanches et un autre avec les pièces noires. Ces joueurs sont représentés par leurs `id` et `rating`.
-- **Cotes** : Les cotes sont calculées en fonction des ratings des joueurs, déterminant la probabilité de victoire de chaque joueur et la probabilité d'égalité.
+- **Cotes** : Les cotes sont calculées en fonction des ratings des joueurs, déterminant la probabilité de victoire de chaque joueur et la probabilité d'égalité. Pour calculer les probabilités de victoires, ont utilise l'ELO des joueurs avec la formule suivante : P(A) = 1 / (1 + 10^((eloB - eloA) / 400)). Pour les égalité, il n'existe pas de formule basée sur l'Elo pour calculer une probabilité, on utilise donc des observations statistique sur plus de 8 millions de parties, à Elo et différence d'Elo (voir : [ici](https://web.archive.org/web/20160806071058/http://chess-db.com/public/research/draw_rate.html)). Enfin, pour transformer la probabilité en cote de match, on utilise la formule suivante : Cote = 1/P(A).
 - **Statut et Résultat** : Le statut du match peut être soit `ONGOING` (en cours) ou `ENDED` (terminé), et une fois que le match est terminé, le résultat sera l'un des trois états : `WHITE`, `BLACK` ou `DRAW`.
 
 ## Framework : Nest.js
