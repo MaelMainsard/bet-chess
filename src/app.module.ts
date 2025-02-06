@@ -5,6 +5,8 @@ import { AuthModule } from './auth/auth.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { MatchModule } from './match/match.module';
 import { LichessModule } from './lichess/lichess.module';
+import * as dotenv from 'dotenv';
+dotenv.config();
 
 @Module({
   imports: [
@@ -12,7 +14,8 @@ import { LichessModule } from './lichess/lichess.module';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    LichessModule,
+    // Vérifier l'environnement avant d'ajouter le LichessModule
+    ...(process.env.NODE_ENV !== 'test' ? [LichessModule] : []),
     FirebaseModule,
     AuthModule,
     NotificationsModule,

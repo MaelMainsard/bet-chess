@@ -5,11 +5,6 @@ import { MatchService } from './match.service';
 export class MatchController {
     constructor(private readonly matchService: MatchService) {}
 
-    @Get()
-    findAll() {
-        return this.matchService.findAll();
-    }
-
     @Get('ongoing')
     findAllOngoing() {
         return this.matchService.findAllOngoing();
