@@ -3,6 +3,7 @@ import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { FirebaseModule } from '../firebase/firebase.module';
 import { HttpModule } from '@nestjs/axios';
+import { UserModule } from 'src/user/user.module';
 
 @Module({
   imports: [
@@ -11,6 +12,7 @@ import { HttpModule } from '@nestjs/axios';
       maxRedirects: 5,
     }),
     FirebaseModule,
+    UserModule,
   ],
   controllers: [AuthController],
   providers: [AuthService],

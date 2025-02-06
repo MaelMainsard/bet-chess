@@ -4,9 +4,9 @@ import { Bet } from './interfaces/bet.interface';
 import { BetService } from './bet.service';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
-import { User } from '../auth/interfaces/user.interface';
 import { createBetBody } from './constant/api.example';
 import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
+import { User } from 'src/user/user';
 
 @ApiTags('Bet')
 @Controller('bet')
