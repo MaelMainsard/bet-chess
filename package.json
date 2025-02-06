@@ -8,7 +8,8 @@
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-    "start": "nest start",
+    "start": "nest start --watch",
+    "dev": "NODE_ENV=development npm run start:dev",
     "start:dev": "concurrently \"firebase emulators:start\" \"nest start --watch\"",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
