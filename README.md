@@ -51,3 +51,7 @@ Le déploiement de l'API est automatisé via **Cloud Run**, un service de Google
 #
 
 Vous êtes maintenant prêts à commencer à développer ou à tester l'API ! Si vous avez des questions, n'hésitez pas à consulter la documentation ou à demander de l'aide.
+
+## Vidéo présentation API
+
+La vidéo a été déposé sur moodle sur le cours "Projet final - Conception et développement d'une API en Node.js".
