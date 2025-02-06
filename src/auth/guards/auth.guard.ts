@@ -5,6 +5,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { FirebaseService } from '../../firebase/firebase.service';
+import { User } from 'src/user/user';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -39,7 +40,7 @@ export class AuthGuard implements CanActivate {
         throw new UnauthorizedException('User not found in database');
       }
 
-      request.user = {
+      request.user = new User({
         uid: decodedToken.uid,
         email: userDoc.data()!.email,
         username: userDoc.data()!.username,
@@ -47,7 +48,7 @@ export class AuthGuard implements CanActivate {
         lastLogin: userDoc.data()!.lastLogin.toDate(),
         createdAt: userDoc.data()!.createdAt.toDate(),
         updatedAt: userDoc.data()!.updatedAt.toDate(),
-      };
+      });
 
       return true;
     } catch (error) {

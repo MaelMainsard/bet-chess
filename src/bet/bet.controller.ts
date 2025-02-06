@@ -4,7 +4,7 @@ import { Bet } from './interfaces/bet.interface';
 import { BetService } from './bet.service';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
-import { User } from '../auth/interfaces/user.interface';
+import { User } from 'src/user/user';
 
 @Controller('bet')
 export class BetController {
@@ -12,7 +12,10 @@ export class BetController {
 
   @Post()
   @UseGuards(AuthGuard)
-  async createBet(@Body() credentials: AddBetDto, @CurrentUser() user: User): Promise<Bet> {
+  async createBet(
+    @Body() credentials: AddBetDto,
+    @CurrentUser() user: User,
+  ): Promise<Bet> {
     return this.betService.newBet(credentials, user);
   }
 }

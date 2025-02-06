@@ -73,7 +73,7 @@ export class AuthService {
       id_token: response.data.idToken,
       expires_in: response.data.expiresIn,
       token_type: 'Bearer',
-      user: user.toJSON(),
+      user: user,
     };
   }
 
