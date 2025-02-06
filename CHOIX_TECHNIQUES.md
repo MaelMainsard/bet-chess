@@ -35,6 +35,23 @@ Le modèle `Match` représente une partie entre deux joueurs, avec les joueurs b
 | `cote`          | `Cote`         | Cotes de la partie (probabilités de victoire ou égalité).        |
 | `result`        | `MatchResult`  | Résultat du match : `WHITE`, `BLACK`, ou `DRAW`, ou `null` si en cours. |
 
+Pas de souci ! Voici l'ajout du modèle `Bet` dans ton schéma de données documenté.
+
+---
+
+#### 4. **Bet**
+Le modèle `Bet` représente un pari effectué par un utilisateur sur un match, incluant le résultat du pari, le montant parié et les gains/pertes associés.
+
+| Champ         | Type     | Description                                           |
+|---------------|----------|-------------------------------------------------------|
+| `uid`         | `string` | Identifiant unique du pari.                          |
+| `matchId`     | `string` | Identifiant du match sur lequel le pari a été effectué. |
+| `userId`      | `string` | Identifiant de l'utilisateur ayant effectué le pari. |
+| `bet`         | `MatchResult` | Résultat du pari (peut être `WHITE`, `BLACK` ou `DRAW`). |
+| `isResultWin` | `boolean` | Indique si le pari a été gagné (`true`) ou perdu (`false`). |
+| `bet_amount`  | `number` | Montant parié par l'utilisateur.                      |
+| `result_amount` | `number` | Montant gagné ou perdu en fonction du résultat du pari. |
+
 ### Remarques
 - **Relation entre `Player` et `Match`** : Un `Match` implique deux `Player`, un joueur avec les pièces blanches et un autre avec les pièces noires. Ces joueurs sont représentés par leurs `id` et `rating`.
 - **Cotes** : Les cotes sont calculées en fonction des ratings des joueurs, déterminant la probabilité de victoire de chaque joueur et la probabilité d'égalité.
