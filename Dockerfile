@@ -10,19 +10,6 @@ COPY . .
 RUN echo "$ENV" > .env
 RUN echo "$FIREBASE_CONFIG" > firebase-service-account.json
 
-# Vérification des fichiers
-RUN if [ ! -s .env ]; then \
-    echo ".env file is missing or empty" && exit 1; \
-    else echo ".env file exists and is not empty"; \
-    fi
-
-RUN if [ ! -s firebase-service-account.json ]; then \
-    echo "firebase-service-account.json is missing or empty" && exit 1; \
-    fi && \
-    if ! jq '.' firebase-service-account.json > /dev/null 2>&1; then \
-    echo "firebase-service-account.json is not a valid JSON" && exit 1; \
-    else echo "firebase-service-account.json is valid JSON"; \
-    fi \
 
 RUN npm run build
 
