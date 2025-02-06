@@ -60,7 +60,6 @@ jobs:
           cat firebase-debug.log || true
 
       - name: Création et push du tag
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && success()
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
