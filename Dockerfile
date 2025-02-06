@@ -8,7 +8,12 @@ RUN npm install
 
 COPY . .
 RUN echo "$ENV" > .env
+RUN cat .env  # Affiche le contenu du fichier .env
+
 RUN echo "$FIREBASE_CONFIG" > firebase-service-account.json
+RUN cat firebase-service-account.json  # Affiche le contenu du fichier firebase-service-account.json
+
+
 
 RUN npm run build
 
