@@ -64,6 +64,8 @@ jobs:
           cat firebase-debug.log || true
 
       - name: Tag branch
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
         run: |
           VERSION=$(node -p "require('./package.json').version")
           git tag -f -a ${VERSION} -m "Release ${VERSION}."
