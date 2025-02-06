@@ -24,7 +24,7 @@ COPY --from=builder /app/.env ./.env
 COPY --from=builder /app/firebase-service-account.json ./firebase-service-account.json
 
 ENV NODE_ENV=production
-# Exposer le port 3000
-EXPOSE 3000
+
+EXPOSE ${PORT}
 
 CMD ["node", "dist/main.js"]
