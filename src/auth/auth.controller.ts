@@ -5,8 +5,7 @@ import { AuthResponse } from './interfaces/auth-response.interface';
 import { LoginDto } from './dto/login.dto';
 import { AuthGuard } from './guards/auth.guard';
 import { CurrentUser } from './decorators/current-user.decorator';
-import { User } from './interfaces/user.interface';
-
+import { User } from 'src/user/user';
 
 @Controller('auth')
 export class AuthController {
@@ -14,7 +13,7 @@ export class AuthController {
 
   @Post('/register')
   async register(@Body() credentials: RegisterDto): Promise<AuthResponse> {
-      return this.authService.register(credentials);
+    return this.authService.register(credentials);
   }
 
   @Post('/login')
@@ -27,5 +26,4 @@ export class AuthController {
   getProfile(@CurrentUser() user: User) {
     return user;
   }
-
 }
