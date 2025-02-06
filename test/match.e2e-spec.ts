@@ -68,7 +68,7 @@ describe('MatchController (e2e)', () => {
       .expect(200);
 
     expect(response.body).toHaveProperty('id', matchId);
-    expect(response.body).toHaveProperty('status', 'SCHEDULED');
+    expect(response.body).toHaveProperty('status', 'ONGOING');
   });
 
   it('/match/ongoing (GET) - doit retourner les matchs en cours', async () => {

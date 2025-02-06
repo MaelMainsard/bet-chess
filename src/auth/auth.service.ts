@@ -18,8 +18,10 @@ export class AuthService {
   private readonly USERS_COLLECTION = 'users';
 
   private get AUTH_BASE_URL(): string {
-    return process.env.FIREBASE_AUTH_EMULATOR_HOST
-      ? `http://${process.env.FIREBASE_AUTH_EMULATOR_HOST}/identitytoolkit.googleapis.com/v1`
+    const isDev:boolean = process.env.NODE_ENV === 'development';
+    const isTest:boolean = process.env.NODE_ENV === 'test';
+    return isDev || isTest
+      ? `http://${process.env['FIREBASE_AUTH_EMULATOR_HOST']}/identitytoolkit.googleapis.com/v1`
       : 'https://identitytoolkit.googleapis.com/v1';
   }
 
