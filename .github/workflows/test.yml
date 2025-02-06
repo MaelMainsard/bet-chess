@@ -12,6 +12,7 @@ jobs:
   lint-test-deploy:
     runs-on: ubuntu-latest
     env:
+      FIREBASE_EMULATORS_PATH: ${{ github.workspace }}/emulator-cache
       FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
     steps:
       - name: Checkout du code
@@ -24,14 +25,14 @@ jobs:
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
 
-      # Cache pour l'émulateur Firebase
-      - name: Cache Firebase Emulators
+      - name: Cache firebase emulators
         uses: actions/cache@v3
         with:
-          path: /home/runner/.cache/firebase/emulators
-          key: firebase-emulators-${{ hashFiles('**/firebase.json') }}
-          restore-keys: |
-            firebase-emulators-
+          path: ${{ env.FIREBASE_EMULATORS_PATH }}
+          key:
+            ${{ runner.os }}-firebase-emulators-${{
+            hashFiles('emulator-cache/**') }}
+        continue-on-error: true
 
       - name: Installer Node.js
         uses: actions/setup-node@v3
@@ -58,7 +59,6 @@ jobs:
       - name: Créer le fichier de configuration Firebase
         run: echo '${{ secrets.CONFIG_FIREBASE }}' > firebase-service-account.json
 
-      # Installation des outils globaux nécessaires
       - name: Installer les outils globaux
         run: npm install -g cross-env concurrently wait-on
 
