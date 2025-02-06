@@ -19,7 +19,8 @@ export class AuthService {
 
   private get AUTH_BASE_URL(): string {
     const isDev:boolean = process.env.NODE_ENV === 'development';
-    return isDev
+    const isTest:boolean = process.env.NODE_ENV === 'test';
+    return isDev || isTest
       ? `http://${process.env['FIREBASE_AUTH_EMULATOR_HOST']}/identitytoolkit.googleapis.com/v1`
       : 'https://identitytoolkit.googleapis.com/v1';
   }

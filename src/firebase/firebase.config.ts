@@ -10,7 +10,8 @@ export class FirebaseService {
   constructor() {
     const serviceAccount = require('../../firebase-service-account.json');
     const isDev:boolean = process.env.NODE_ENV === 'development';
-    if(isDev) {
+    const isTest:boolean = process.env.NODE_ENV === 'test';
+    if(isDev || isTest) {
       process.env['FIRESTORE_EMULATOR_HOST'] = 'localhost:8080';
       process.env['FIREBASE_AUTH_EMULATOR_HOST'] = 'localhost:9099';
     }
