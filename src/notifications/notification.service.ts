@@ -1,19 +1,11 @@
-import { Body, Injectable } from '@nestjs/common';
-import { FirebaseService } from 'src/firebase/firebase.config';
-import * as nodemailer from 'nodemailer';
+import { Injectable } from '@nestjs/common';
 import { Match } from 'src/match/match';
 import { Bet } from 'src/bet/interfaces/bet.interface';
+import { UserService } from 'src/user/user.service';
+import * as nodemailer from 'nodemailer';
 
 @Injectable()
 export class NotificationService {
-  private readonly USERS_COLLECTION = 'users';
-
-  private db: FirebaseFirestore.Firestore;
-
-  constructor(private readonly firebaseService: FirebaseService) {
-    this.db = firebaseService.getFirestore();
-  }
-
   private transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -22,19 +14,18 @@ export class NotificationService {
     },
   });
 
+  constructor(private readonly userService: UserService) {}
+
+  // Send a notification about a bet result (by email)
   async sendBetNotification(match: Match, bet: Bet) {
     console.log('Sending email to ', bet.userId);
 
-    const userDoc = await this.firebaseService
-      .getFirestore()
-      .collection(this.USERS_COLLECTION)
-      .doc(bet.userId)
-      .get();
-    if (!userDoc.exists) return;
+    const user = await this.userService.findById(bet.userId);
+    if (!user) return;
 
     const mailOptions = {
       from: process.env.EMAIL_USER,
-      to: userDoc.data()!.email,
+      to: user.email,
       subject: bet.isResultWin
         ? 'Vous avez gagné votre pari !'
         : 'Vous avez perdu votre pari !',

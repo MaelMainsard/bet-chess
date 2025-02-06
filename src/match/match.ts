@@ -33,19 +33,14 @@ export class Match {
   }
 
   toJSON() {
-    try {
-      return {
-        id: this.id,
-        whitePlayer: this.whitePlayer.toJSON(),
-        blackPlayer: this.blackPlayer.toJSON(),
-        status: this.status,
-        cote: this.cote,
-        result: this.result,
-      };
-    } catch (e) {
-      console.log(this);
-      throw e;
-    }
+    return {
+      id: this.id,
+      whitePlayer: this.whitePlayer.toJSON(),
+      blackPlayer: this.blackPlayer.toJSON(),
+      status: this.status,
+      cote: this.cote,
+      result: this.result,
+    };
   }
 
   static fromJSON(data: any): Match {
