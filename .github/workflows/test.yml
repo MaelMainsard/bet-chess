@@ -1,15 +1,16 @@
 name: Test and Deploy Pipeline
 
 on:
-  push:
-    branches:
-      - main
   pull_request:
     branches:
       - main
 
 jobs:
   lint-test-deploy:
+    permissions:
+      id-token: write
+      contents: read
+      repository-projects: write
     runs-on: ubuntu-latest
     steps:
       - name: Checkout du code
@@ -58,15 +59,6 @@ jobs:
         run: |
           echo "=== Firebase Emulator Logs ==="
           cat firebase-debug.log || true
-
-      - name: Création et push du tag
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && success()
-        run: |
-          git config --global user.email "github-actions@github.com"
-          git config --global user.name "GitHub Actions"
-          VERSION=$(node -p "require('./package.json').version")
-          git tag -a "v$VERSION" -m "Release version $VERSION"
-          git push origin "v$VERSION"
 
       - name: Nettoyer les fichiers sensibles
         if: always()
