@@ -9,6 +9,7 @@
     "dev": "NODE_ENV=development npm run start:dev",
     "start": "nest start --watch",
     "emulator": "firebase emulators:start",
+    "emulatorOnCi" : "firebase emulators:start --token ${{ secrets.FIREBASE_TOKEN }}",
     "start:dev": "concurrently \"npm run emulator\" \"nest start --watch\" --kill-others-on-fail",
     "start:debug": "nest start --debug --watch",
     "start:prod": "NODE_ENV=production node dist/main",
@@ -20,7 +21,7 @@
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "cross-env NODE_ENV=test concurrently \"npm run emulator\" \"wait-on --timeout 20000 tcp:9099 tcp:8080 && jest --config ./test/jest-e2e.json --runInBand --detectOpenHandles --forceExit\" -k"
+    "test:e2e": "cross-env NODE_ENV=test concurrently \"npm run emulatorOnCi\" \"wait-on --timeout 20000 tcp:9099 tcp:8080 && jest --config ./test/jest-e2e.json --runInBand --detectOpenHandles --forceExit\" -k"
   },
   "dependencies": {
     "@nestjs/axios": "^4.0.0",
